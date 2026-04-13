@@ -27,20 +27,14 @@ def login_view(request):
         email = request.POST.get('email')
         password = request.POST.get('password')
 
-        try:
-            user_obj = User.objects.get(email=email)
-            user = authenticate(request, username=user_obj.username, password=password)
+        user = authenticate(request, email=email, password=password)
 
-            if user is not None:
-                login(request, user)
-                messages.success(request, f'Добро пожаловать, {user.username}!')
-                return redirect('main')
-            else:
-                messages.error(request, 'Неверный пароль')
-        except User.DoesNotExist:
-            messages.error(request, 'Пользователь с такой почтой не найден')
-
-        return redirect('login')
+        if user is not None:
+            login(request, user)
+            messages.success(request, f'Добро пожаловать, {user.username}!')
+            return redirect('main')
+        else:
+            messages.error(request, 'Неверная почта или пароль')
 
     return render(request, 'html/login.html')
 
@@ -73,28 +67,13 @@ def register_view(request):
             password=password
         )
 
-        login(request, user)
+        # Указываем бэкенд
+        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+
         messages.success(request, f'Регистрация успешна! Добро пожаловать, {username}!')
-        return redirect('profile_setup')
+        return redirect('main')
 
     return render(request, 'html/register.html')
-
-
-def profile_setup(request):
-    return render(request, 'html/profile_setup.html')
-
-
-@login_required
-def avatar_setup(request):
-    if request.method == 'POST':
-        avatar = request.FILES.get('avatar')
-        if avatar:
-            profile = request.user.profile
-            profile.avatar = avatar
-            profile.save()
-            messages.success(request, 'Аватар успешно загружен!')
-        return redirect('main')
-    return render(request, 'html/avatar_setup.html')
 
 
 @login_required

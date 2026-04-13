@@ -100,8 +100,8 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 AUTHENTICATION_BACKENDS = [
-    'events.templates.backends.email_back.EmailBackend',
     'django.contrib.auth.backends.ModelBackend',
+    'events.templates.backends.email_back.EmailBackend',
 ]
 
 # Internationalization
