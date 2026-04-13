@@ -1,0 +1,44 @@
+/* ===== FAB КНОПКА ===== */
+.fab {
+    position: fixed !important;
+    bottom: 30px !important;
+    right: 30px !important;
+    width: 64px !important;
+    height: 64px !important;
+    border-radius: 50% !important;
+    background: #b6ff00 !important;
+    border: none !important;
+    box-shadow: 0 10px 20px rgba(139, 184, 0, 0.3) !important;
+    font-size: 32px !important;
+    font-weight: 700 !important;
+    color: #1e293b !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-decoration: none !important;
+    z-index: 9999 !important;
+    line-height: 1 !important;
+}
+
+.fab:hover {
+    background: #c0ff0a !important;
+    transform: scale(1.05) !important;
+    box-shadow: 0 15px 25px rgba(139, 184, 0, 0.4) !important;
+}
+
+.fab:active {
+    transform: scale(0.95) !important;
+}
+
+/* Адаптив */
+@media (max-width: 640px) {
+    .fab {
+        width: 56px !important;
+        height: 56px !important;
+        bottom: 20px !important;
+        right: 20px !important;
+        font-size: 28px !important;
+    }
+}

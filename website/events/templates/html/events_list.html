@@ -1,0 +1,218 @@
+{% extends 'html/base.html' %}
+{% load static %}
+
+{% block title %}Все события | BR_ALPHA{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/events-list.css' %}">
+<link rel="stylesheet" href="{% static 'css/fab.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="event-list-wrapper">
+    <!-- ЗАГОЛОВОК И ФИЛЬТРЫ -->
+    <div class="page-header">
+        <h1>
+            <i class="fas fa-calendar-alt"></i>
+            Все события
+        </h1>
+
+        <form method="GET" class="filters-form">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" name="search" placeholder="Поиск событий..." value="{{ search }}">
+            </div>
+
+            <select name="status" class="filter-select">
+                <option value="">Все статусы</option>
+                <option value="upcoming" {% if current_status == 'upcoming' %}selected{% endif %}>🎯 Предстоящие</option>
+                <option value="ongoing" {% if current_status == 'ongoing' %}selected{% endif %}>🔥 Идут сейчас</option>
+                <option value="completed" {% if current_status == 'completed' %}selected{% endif %}>✅ Завершённые</option>
+                <option value="cancelled" {% if current_status == 'cancelled' %}selected{% endif %}>❌ Отменённые</option>
+            </select>
+
+            <select name="category" class="filter-select">
+                <option value="">Все категории</option>
+                {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if current_category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit" class="btn-filter">
+                <i class="fas fa-filter"></i> Применить
+            </button>
+            <a href="{% url 'events_list' %}" class="btn-reset">
+                <i class="fas fa-times"></i> Сбросить
+            </a>
+        </form>
+    </div>
+
+    <!-- СТАТИСТИКА -->
+    <div class="quick-stats">
+        <div class="stat-badge">
+            <i class="fas fa-calendar"></i>
+            <span>Всего: {{ events.paginator.count }}</span>
+        </div>
+        {% if search or current_status or current_category %}
+        <div class="stat-badge filtered">
+            <i class="fas fa-filter"></i>
+            <span>Найдено: {{ events|length }}</span>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- СПИСОК СОБЫТИЙ -->
+    <div class="events-grid">
+        {% for event in events %}
+            <div class="event-card">
+                {% if event.image %}
+                <div class="event-card-image">
+                    <img src="{{ event.image.url }}" alt="{{ event.title }}">
+        <span class="event-status-badge status-{{ event.status }}">
+            {{ event.get_status_display }}
+        </span>
+                </div>
+                {% else %}
+                <div class="event-card-image placeholder">
+                    <i class="fas fa-calendar"></i>
+        <span class="event-status-badge status-{{ event.status }}">
+            {{ event.get_status_display }}
+        </span>
+                </div>
+                {% endif %}
+
+                <div class="event-card-content">
+                    <div class="event-header">
+                        <h3 class="event-title">{{ event.title }}</h3>
+                        {% if user in event.participants.all %}
+                            <span class="my-event-badge">
+                                <i class="fas fa-check"></i> Я участвую
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    {% if event.category %}
+                    <div class="event-category">
+                        <i class="fas fa-folder"></i> {{ event.category.name }}
+                    </div>
+                    {% endif %}
+
+                    <div class="event-desc">
+                        {{ event.description|truncatechars:120 }}
+                    </div>
+
+                    <div class="event-meta">
+                        <span class="meta-item">
+                            <i class="far fa-calendar"></i> {{ event.date|date:"d.m.Y" }}
+                        </span>
+                        <span class="meta-item">
+                            <i class="far fa-clock"></i> {{ event.time|time:"H:i" }}
+                        </span>
+                        <span class="meta-item">
+                            <i class="fas fa-map-marker-alt"></i> {{ event.location|truncatechars:25 }}
+                        </span>
+                    </div>
+
+                    <div class="event-footer">
+                        <div class="participants-info">
+                            <i class="fas fa-users"></i>
+                            <span>{{ event.participants.count }}</span>
+                            {% if event.max_participants > 0 %}
+                                <span class="separator">/</span>
+                                <span>{{ event.max_participants }}</span>
+                            {% endif %}
+                            {% if event.is_full %}
+                                <span class="full-badge">Мест нет</span>
+                            {% elif event.available_seats %}
+                                <span class="seats-available">Свободно: {{ event.available_seats }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="event-actions-card">
+                            <a href="{% url 'event_detail' event.id %}" class="btn-card">
+                                Подробнее <i class="fas fa-arrow-right"></i>
+                            </a>
+                            {% if user.is_staff or user == event.creator %}
+                                <a href="{% url 'event_edit' event.id %}" class="btn-icon" title="Редактировать">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-calendar-times"></i>
+                </div>
+                <h3>События не найдены</h3>
+                <p>{% if search or current_status or current_category %}Попробуйте изменить параметры поиска или фильтры{% else %}В системе пока нет событий{% endif %}</p>
+                {% if user.is_staff %}
+                    <a href="{% url 'event_create' %}" class="btn-primary">
+                        <i class="fas fa-plus"></i> Создать первое событие
+                    </a>
+                {% endif %}
+                {% if search or current_status or current_category %}
+                    <a href="{% url 'events_list' %}" class="btn-secondary">
+                        <i class="fas fa-times"></i> Сбросить фильтры
+                    </a>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- ПАГИНАЦИЯ -->
+    {% if events.has_other_pages %}
+    <div class="pagination">
+        {% if events.has_previous %}
+            <a href="?page=1{% if search %}&search={{ search }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}" class="page-link first-page" title="Первая страница">
+                <i class="fas fa-angle-double-left"></i>
+            </a>
+            <a href="?page={{ events.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}" class="page-link" title="Предыдущая">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+        {% else %}
+            <span class="page-link disabled"><i class="fas fa-angle-double-left"></i></span>
+            <span class="page-link disabled"><i class="fas fa-chevron-left"></i></span>
+        {% endif %}
+
+        {% for num in events.paginator.page_range %}
+            {% if events.number == num %}
+                <span class="page-current">{{ num }}</span>
+            {% elif num > events.number|add:'-3' and num < events.number|add:'3' %}
+                <a href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}" class="page-link">{{ num }}</a>
+            {% elif num == 1 or num == events.paginator.num_pages %}
+                <a href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}" class="page-link">{{ num }}</a>
+            {% elif num == events.number|add:'-3' or num == events.number|add:'3' %}
+                <span class="page-dots">...</span>
+            {% endif %}
+        {% endfor %}
+
+        {% if events.has_next %}
+            <a href="?page={{ events.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}" class="page-link" title="Следующая">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+            <a href="?page={{ events.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}" class="page-link last-page" title="Последняя страница">
+                <i class="fas fa-angle-double-right"></i>
+            </a>
+        {% else %}
+            <span class="page-link disabled"><i class="fas fa-chevron-right"></i></span>
+            <span class="page-link disabled"><i class="fas fa-angle-double-right"></i></span>
+        {% endif %}
+    </div>
+    <div class="pagination-info">
+        Страница {{ events.number }} из {{ events.paginator.num_pages }}
+    </div>
+    {% endif %}
+</div>
+
+<!-- ➕ FAB для админов -->
+{% if user.is_staff %}
+<a href="{% url 'event_create' %}">
+    <button class="fab" aria-label="Создать событие">+</button>
+</a>
+{% endif %}
+
+{% endblock %}

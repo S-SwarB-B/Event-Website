@@ -1,0 +1,38 @@
+{% extends 'html/auth_base.html' %}
+{% load static %}
+
+{% block title %}Авторизация | BR_ALPHA{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-container">
+        <h1>АВТОРИЗАЦИЯ</h1>
+
+        <form method="POST" class="auth-form">
+            {% csrf_token %}
+
+            <div class="input-group">
+                <i class="fas fa-envelope"></i>
+                <input type="email" name="email" placeholder="Почта" required autocomplete="email">
+            </div>
+
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" name="password" placeholder="Пароль" required autocomplete="current-password">
+            </div>
+
+            <button type="submit" class="auth-btn">
+                <i class="fas fa-sign-in-alt"></i> ВОЙТИ
+            </button>
+        </form>
+
+        <div class="auth-link">
+            Нет аккаунта? <a href="{% url 'register' %}">Зарегистрироваться</a>
+        </div>
+
+        <div class="auth-footer">
+            <a href="{% url 'welcome' %}"><i class="fas fa-arrow-left"></i> На главную</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

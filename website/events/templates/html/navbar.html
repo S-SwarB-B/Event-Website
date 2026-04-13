@@ -1,0 +1,23 @@
+{% load static %}
+
+<!-- 🔝 NAVBAR -->
+<div class="navbar">
+    <div class="nav-left">
+        <img src="{% static 'picture/bg.png' %}" alt="BR_ALPHA Logo" class="logo-img">
+        <span class="logo-text">BR_ALPHA</span>
+    </div>
+    <div class="nav-right">
+        <a href="{% url 'main' %}" class="nav-link">
+            <i class="fas fa-home"></i> Главная
+        </a>
+        <a href="{% url 'events_list' %}" class="nav-link">
+            <i class="fas fa-calendar-alt"></i> События
+        </a>
+        <a href="{% url 'profile' %}" class="nav-link">
+            <i class="fas fa-user-circle"></i> Профиль
+        </a>
+        <a href="{% url 'logout' %}" class="nav-link logout">
+            <i class="fas fa-sign-out-alt"></i> Выйти
+        </a>
+    </div>
+</div>

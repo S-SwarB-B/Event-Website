@@ -1,0 +1,28 @@
+{% extends 'html/auth_base.html' %}
+{% load static %}
+
+{% block title %}Добро пожаловать | BR_ALPHA{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-container welcome-container">
+        <div class="welcome-text">
+            <h1>ДОБРО ПОЖАЛОВАТЬ</h1>
+            <p>В систему управления мероприятиями</p>
+        </div>
+
+        <div class="welcome-actions">
+            <a href="{% url 'login' %}">
+                <button class="auth-btn">
+                    <i class="fas fa-sign-in-alt"></i> ВОЙТИ
+                </button>
+            </a>
+            <a href="{% url 'register' %}">
+                <button class="auth-btn secondary">
+                    <i class="fas fa-user-plus"></i> ЗАРЕГИСТРИРОВАТЬСЯ
+                </button>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

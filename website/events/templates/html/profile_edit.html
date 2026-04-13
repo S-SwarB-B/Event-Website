@@ -1,0 +1,131 @@
+{% extends 'html/base.html' %}
+{% load static %}
+
+{% block title %}Редактирование профиля | BR_ALPHA{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+<link rel="stylesheet" href="{% static 'css/event-form.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="profile-wrapper">
+    <div class="form-container">
+        <div class="form-header">
+            <h1>
+                <i class="fas fa-user-edit"></i>
+                Редактирование профиля
+            </h1>
+            <p>Измените информацию о себе</p>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <!-- Аватар -->
+            <div class="form-group">
+                <label for="avatar">
+                    <i class="fas fa-camera"></i> Аватар
+                </label>
+                <input type="file" name="avatar" id="avatar" accept="image/*" class="form-control">
+                {% if user.profile.avatar %}
+                <div class="current-avatar">
+                    <p>Текущий аватар:</p>
+                    <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;">
+                </div>
+                {% endif %}
+                <div class="help-text">Рекомендуемый размер: 400x400 пикселей</div>
+            </div>
+
+            <!-- Имя пользователя -->
+            <div class="form-group">
+                <label for="username">
+                    <i class="fas fa-user"></i> Имя пользователя
+                </label>
+                <input type="text" name="username" id="username" value="{{ user.username }}" class="form-control" required>
+                <div class="help-text">Уникальное имя для входа</div>
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+                <label for="email">
+                    <i class="fas fa-envelope"></i> Email
+                </label>
+                <input type="email" name="email" id="email" value="{{ user.email }}" class="form-control" required>
+            </div>
+
+            <!-- О себе -->
+            <div class="form-group">
+                <label for="bio">
+                    <i class="fas fa-align-left"></i> О себе
+                </label>
+                <textarea name="bio" id="bio" rows="4" class="form-control" placeholder="Расскажите о себе...">{{ user.profile.bio }}</textarea>
+                <div class="help-text">Необязательно, максимум 500 символов</div>
+            </div>
+
+            <!-- Телефон -->
+            <div class="form-group">
+                <label for="phone">
+                    <i class="fas fa-phone"></i> Телефон
+                </label>
+                <input type="tel" name="phone" id="phone" value="{{ user.profile.phone }}" class="form-control" placeholder="+7 (999) 123-45-67">
+            </div>
+
+            <!-- Город -->
+            <div class="form-group">
+                <label for="city">
+                    <i class="fas fa-city"></i> Город
+                </label>
+                <input type="text" name="city" id="city" value="{{ user.profile.city }}" class="form-control" placeholder="Москва">
+            </div>
+
+            <!-- Telegram -->
+            <div class="form-group">
+                <label for="telegram">
+                    <i class="fab fa-telegram"></i> Telegram
+                </label>
+                <input type="text" name="telegram" id="telegram" value="{{ user.profile.telegram }}" class="form-control" placeholder="@username">
+            </div>
+
+            <!-- Дата рождения -->
+            <div class="form-group">
+                <label for="birth_date">
+                    <i class="fas fa-birthday-cake"></i> Дата рождения
+                </label>
+                <input type="date" name="birth_date" id="birth_date" value="{{ user.profile.birth_date|date:'Y-m-d' }}" class="form-control">
+            </div>
+
+            <!-- Уведомления -->
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" name="receive_notifications" id="receive_notifications" {% if user.profile.receive_notifications %}checked{% endif %}>
+                    <label for="receive_notifications">
+                        <i class="fas fa-bell"></i> Получать уведомления
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" name="email_notifications" id="email_notifications" {% if user.profile.email_notifications %}checked{% endif %}>
+                    <label for="email_notifications">
+                        <i class="fas fa-envelope"></i> Уведомления на email
+                    </label>
+                </div>
+            </div>
+
+            <!-- Кнопки -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Сохранить изменения
+                </button>
+                <a href="{% url 'profile' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Отмена
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,200 @@
+{% extends 'html/base.html' %}
+{% load static %}
+
+{% block title %}{% if form.instance.pk %}Редактирование{% else %}Создание{% endif %} события | BR_ALPHA{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/event-form.css' %}">
+<link rel="stylesheet" href="{% static 'css/fab.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- ФОРМА СОЗДАНИЯ/РЕДАКТИРОВАНИЯ СОБЫТИЯ -->
+<div class="form-container">
+    <div class="form-header">
+        <h1>
+            <i class="fas fa-calendar-plus"></i>
+            {% if form.instance.pk %}
+                Редактировать событие
+            {% else %}
+                Создать новое событие
+            {% endif %}
+        </h1>
+        <p>Заполните информацию о мероприятии</p>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" id="eventForm">
+        {% csrf_token %}
+
+        <!-- Название -->
+        <div class="form-group">
+            <label for="{{ form.title.id_for_label }}">
+                <i class="fas fa-heading"></i> Название события
+            </label>
+            {{ form.title }}
+            {% if form.title.errors %}
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    {{ form.title.errors.0 }}
+                </div>
+            {% endif %}
+            <div class="help-text">Яркое и понятное название</div>
+        </div>
+
+        <!-- Описание -->
+        <div class="form-group">
+            <label for="{{ form.description.id_for_label }}">
+                <i class="fas fa-align-left"></i> Описание
+            </label>
+            {{ form.description }}
+            {% if form.description.errors %}
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    {{ form.description.errors.0 }}
+                </div>
+            {% endif %}
+            <div class="help-text">Подробно опишите мероприятие, программу, спикеров</div>
+        </div>
+
+        <!-- Категория -->
+        <div class="form-group">
+            <label for="{{ form.category.id_for_label }}">
+                <i class="fas fa-folder"></i> Категория
+            </label>
+            {{ form.category }}
+            {% if form.category.errors %}
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    {{ form.category.errors.0 }}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Дата и время -->
+        <div class="row">
+            <div class="form-group">
+                <label for="{{ form.date.id_for_label }}">
+                    <i class="fas fa-calendar"></i> Дата
+                </label>
+                {{ form.date }}
+                {% if form.date.errors %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        {{ form.date.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.time.id_for_label }}">
+                    <i class="fas fa-clock"></i> Время начала
+                </label>
+                {{ form.time }}
+                {% if form.time.errors %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        {{ form.time.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Время окончания и место -->
+        <div class="row">
+            <div class="form-group">
+                <label for="{{ form.end_time.id_for_label }}">
+                    <i class="fas fa-clock"></i> Время окончания
+                </label>
+                {{ form.end_time }}
+                {% if form.end_time.errors %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        {{ form.end_time.errors.0 }}
+                    </div>
+                {% endif %}
+                <div class="help-text">Необязательно</div>
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.location.id_for_label }}">
+                    <i class="fas fa-map-marker-alt"></i> Место проведения
+                </label>
+                {{ form.location }}
+                {% if form.location.errors %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        {{ form.location.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Максимум участников и изображение -->
+        <div class="row">
+            <div class="form-group">
+                <label for="{{ form.max_participants.id_for_label }}">
+                    <i class="fas fa-users"></i> Максимум участников
+                </label>
+                {{ form.max_participants }}
+                {% if form.max_participants.errors %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        {{ form.max_participants.errors.0 }}
+                    </div>
+                {% endif %}
+                <div class="help-text">0 — без ограничений</div>
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.image.id_for_label }}">
+                    <i class="fas fa-image"></i> Изображение
+                </label>
+                {{ form.image }}
+                {% if form.image.errors %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        {{ form.image.errors.0 }}
+                    </div>
+                {% endif %}
+                <div class="image-preview" id="imagePreview">
+                    <img src="" alt="Предпросмотр">
+                </div>
+            </div>
+        </div>
+
+        <!-- Публичность и статус -->
+        <div class="row">
+            <div class="form-group">
+                <div class="checkbox-group">
+                    {{ form.is_public }}
+                    <label for="{{ form.is_public.id_for_label }}">
+                        <i class="fas fa-globe"></i> Публичное событие
+                    </label>
+                </div>
+                <div class="help-text">Доступно для всех пользователей</div>
+            </div>
+        </div>
+
+        <!-- Кнопки -->
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-check"></i>
+                {% if form.instance.pk %}
+                    Сохранить изменения
+                {% else %}
+                    Создать событие
+                {% endif %}
+            </button>
+            <a href="{% if form.instance.pk %}{% url 'event_detail' form.instance.id %}{% else %}{% url 'events_list' %}{% endif %}" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Отмена
+            </a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/event-form.js' %}"></script>
+{% endblock %}

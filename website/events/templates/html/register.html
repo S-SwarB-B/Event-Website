@@ -1,0 +1,48 @@
+{% extends 'html/auth_base.html' %}
+{% load static %}
+
+{% block title %}Регистрация | BR_ALPHA{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-container">
+        <h1>РЕГИСТРАЦИЯ</h1>
+
+        <form method="POST" class="auth-form">
+            {% csrf_token %}
+
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input type="text" name="username" placeholder="Имя пользователя" required autocomplete="username">
+            </div>
+
+            <div class="input-group">
+                <i class="fas fa-envelope"></i>
+                <input type="email" name="email" placeholder="Почта" required autocomplete="email">
+            </div>
+
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" name="password" placeholder="Пароль" required autocomplete="new-password">
+            </div>
+
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" name="password_confirm" placeholder="Подтвердите пароль" required autocomplete="new-password">
+            </div>
+
+            <button type="submit" class="auth-btn">
+                <i class="fas fa-user-plus"></i> ЗАРЕГИСТРИРОВАТЬСЯ
+            </button>
+        </form>
+
+        <div class="auth-link">
+            Уже есть аккаунт? <a href="{% url 'login' %}">Войти</a>
+        </div>
+
+        <div class="auth-footer">
+            <a href="{% url 'welcome' %}"><i class="fas fa-arrow-left"></i> На главную</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

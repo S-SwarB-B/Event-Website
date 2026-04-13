@@ -1,0 +1,156 @@
+{% extends 'html/base.html' %}
+{% load static %}
+
+{% block title %}BR_ALPHA — Главная{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+<link rel="stylesheet" href="{% static 'css/fab.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- 👋 ПРИВЕТСТВИЕ -->
+<div class="welcome-section">
+    <div class="greeting">
+        <h2>Привет, {{ user.username }}! 👋</h2>
+        <span class="greeting-badge">
+            <i class="fas fa-map-pin"></i> Сегодня {{ now|date:"d M Y" }}
+        </span>
+    </div>
+    <div class="subtitle">
+        <i class="fas fa-sparkles" style="color: #8bb800;"></i>
+        Добро пожаловать в систему управления мероприятиями
+    </div>
+</div>
+
+<!-- 📊 СТАТИСТИКА -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+        <div class="stat-label">Мои события</div>
+        <div class="stat-value">{{ events|length }}</div>
+        <div class="stat-footer">
+            <i class="fas fa-arrow-up" style="color:#8bb800;"></i> Активные участия
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-globe"></i></div>
+        <div class="stat-label">Всего событий</div>
+        <div class="stat-value">{{ all_events_count }}</div>
+        <div class="stat-footer">
+            <i class="fas fa-users"></i> В системе
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-shield-alt"></i></div>
+        <div class="stat-label">Статус</div>
+        <div class="stat-value" style="font-size: 32px; display: flex; align-items: center; gap: 8px;">
+            {% if user.is_staff %}
+                <span class="badge-role admin"><i class="fas fa-crown"></i> Администратор</span>
+            {% else %}
+                <span class="badge-role"><i class="fas fa-user"></i> Пользователь</span>
+            {% endif %}
+        </div>
+        <div class="stat-footer">
+            {% if user.is_staff %}
+                <i class="fas fa-check-circle"></i> Полный доступ
+            {% else %}
+                <i class="fas fa-user-check"></i> Участник
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- 🔥 ПОСЛЕДНИЕ СОБЫТИЯ -->
+<div class="section-header">
+    <h3>
+        <i class="fas fa-fire" style="color: #8bb800;"></i>
+        Последние события
+    </h3>
+    <a href="{% url 'events_list' %}" class="view-all">
+        Все события <i class="fas fa-arrow-right"></i>
+    </a>
+</div>
+
+<div class="events-grid">
+    {% for event in latest_events %}
+        <div class="event-card">
+            <div class="event-header">
+                <div class="event-title">{{ event.title }}</div>
+                {% if user in event.participants.all %}
+                    <span class="participant-badge">
+                        <i class="fas fa-check-circle"></i> Вы участвуете
+                    </span>
+                {% endif %}
+            </div>
+            <div class="event-desc">
+                {{ event.description|truncatechars:80 }}
+            </div>
+            <div class="event-meta">
+                <span><i class="far fa-calendar"></i> {{ event.date|date:"d.m.Y" }}</span>
+                <span><i class="fas fa-user-friends"></i> {{ event.participants.count }} уч.</span>
+            </div>
+            <a href="{% url 'event_detail' event.id %}" class="btn-event">
+                <i class="fas fa-eye"></i> Открыть событие
+            </a>
+        </div>
+    {% empty %}
+        <div class="empty-state" style="grid-column:1/-1;">
+            <i class="fas fa-calendar-plus" style="font-size: 40px; opacity: 0.5; margin-bottom: 16px;"></i>
+            <p>Пока нет событий. Создайте первое!</p>
+        </div>
+    {% endfor %}
+</div>
+
+<!-- 🆕 ДОПОЛНИТЕЛЬНЫЕ БЛОКИ -->
+<div class="extra-blocks">
+    <div class="info-panel">
+        <h4>
+            <i class="fas fa-history" style="color:#8bb800;"></i>
+            Недавняя активность
+        </h4>
+        <ul class="activity-list">
+            <li class="activity-item">
+                <span class="activity-icon"><i class="fas fa-user-plus"></i></span>
+                <span class="activity-text">{{ user.username }} вошёл в систему</span>
+                <span class="activity-time">сейчас</span>
+            </li>
+            {% if latest_events %}
+                <li class="activity-item">
+                    <span class="activity-icon"><i class="fas fa-calendar-plus"></i></span>
+                    <span class="activity-text">Новое событие: {{ latest_events.0.title }}</span>
+                    <span class="activity-time">{{ latest_events.0.created_at|date:"d.m" }}</span>
+                </li>
+            {% endif %}
+            <li class="activity-item">
+                <span class="activity-icon"><i class="fas fa-chart-line"></i></span>
+                <span class="activity-text">Всего событий: {{ all_events_count }}</span>
+                <span class="activity-time">статистика</span>
+            </li>
+        </ul>
+    </div>
+
+    <div class="tip-card">
+        <h4><i class="fas fa-lightbulb"></i> {% if user.is_staff %}Совет для админа{% else %}Быстрое действие{% endif %}</h4>
+        <div class="tip-content">
+            {% if user.is_staff %}
+                <p style="margin-bottom: 16px;">Создавайте события через кнопку «+» внизу.</p>
+            {% else %}
+                <p style="margin-bottom: 16px;">Присоединяйтесь к событиям, чтобы быть в курсе.</p>
+                <a href="{% url 'events_list' %}" style="color: #b6ff00; text-decoration: none; font-weight: 600;">
+                    <i class="fas fa-search"></i> Найти события
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- ➕ FAB -->
+{% if user.is_staff %}
+<a href="{% url 'event_create' %}">
+    <button class="fab" aria-label="Создать событие">+</button>
+</a>
+{% endif %}
+
+{% endblock %}

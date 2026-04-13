@@ -1,0 +1,33 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Аватар</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<div class="wrapper">
+    <div class="container">
+        <h1>АВАТАР</h1>
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <label class="file-upload">
+                ВЫБРАТЬ АВАТАР
+                <input type="file" name="avatar" accept="image/*">
+            </label>
+
+            <button type="submit">ЗАВЕРШИТЬ</button>
+        </form>
+
+        <div class="link">
+            <a href="{% url 'main' %}">ПРОПУСТИТЬ</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

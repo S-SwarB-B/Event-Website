@@ -1,0 +1,213 @@
+{% extends 'html/base.html' %}
+{% load static %}
+
+{% block title %}{{ event.title }} | BR_ALPHA{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/event-detail.css' %}">
+<link rel="stylesheet" href="{% static 'css/fab.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="event-detail-wrapper">
+    <!-- ДЕТАЛИ СОБЫТИЯ -->
+    <div class="event-detail-container">
+        <div class="event-header-detail">
+            <h1>{{ event.title }}</h1>
+            <span class="event-status-badge status-{{ event.status }}">
+                {{ event.get_status_display }}
+            </span>
+        </div>
+
+        <div class="event-meta-detail">
+            <div class="meta-item">
+                <i class="fas fa-calendar"></i>
+                {{ event.date|date:"d M Y" }}
+            </div>
+            <div class="meta-item">
+                <i class="fas fa-clock"></i>
+                {{ event.time|time:"H:i" }}
+                {% if event.end_time %} - {{ event.end_time|time:"H:i" }}{% endif %}
+            </div>
+            <div class="meta-item">
+                <i class="fas fa-map-marker-alt"></i>
+                {{ event.location }}
+            </div>
+            <div class="meta-item">
+                <i class="fas fa-users"></i>
+                {{ event.participants.count }} участников
+                {% if event.max_participants > 0 %}
+                    / {{ event.max_participants }}
+                {% endif %}
+            </div>
+            <div class="meta-item">
+                <i class="fas fa-user"></i>
+                Организатор: {{ event.creator.username }}
+            </div>
+            {% if event.category %}
+            <div class="meta-item">
+                <i class="fas fa-folder"></i>
+                {{ event.category.name }}
+            </div>
+            {% endif %}
+        </div>
+
+        {% if event.image %}
+        <div class="event-image">
+            <img src="{{ event.image.url }}" alt="{{ event.title }}">
+        </div>
+        {% else %}
+        <div class="event-image placeholder">
+            <i class="fas fa-calendar"></i>
+            <p>Нет изображения</p>
+        </div>
+        {% endif %}
+
+        <div class="event-description-detail">
+            {{ event.description|linebreaks }}
+        </div>
+
+        <div class="event-actions">
+            {% if is_participant %}
+                <a href="{% url 'leave_event' event.id %}" class="btn-large btn-danger">
+                    <i class="fas fa-sign-out-alt"></i> Покинуть событие
+                </a>
+            {% elif can_join %}
+                <a href="{% url 'join_event' event.id %}" class="btn-large btn-success">
+                    <i class="fas fa-check"></i> Присоединиться
+                </a>
+            {% else %}
+                {% if event.is_full %}
+                    <button class="btn-large btn-disabled" disabled>
+                        <i class="fas fa-ban"></i> Мест нет
+                    </button>
+                {% elif event.is_past %}
+                    <button class="btn-large btn-disabled" disabled>
+                        <i class="fas fa-calendar-times"></i> Завершено
+                    </button>
+                {% endif %}
+            {% endif %}
+
+            {% if is_creator or user.is_staff %}
+                <a href="{% url 'event_edit' event.id %}" class="btn-large btn-secondary">
+                    <i class="fas fa-edit"></i> Редактировать
+                </a>
+                <button onclick="confirmDelete({{ event.id }})" class="btn-large btn-secondary">
+                    <i class="fas fa-trash"></i> Удалить
+                </button>
+            {% endif %}
+
+            <a href="{% url 'events_list' %}" class="btn-large btn-outline">
+                <i class="fas fa-arrow-left"></i> К списку событий
+            </a>
+        </div>
+
+        <!-- Участники -->
+        <div class="participants-section">
+            <h3>
+                <i class="fas fa-users"></i>
+                Участники ({{ event.participants.count }})
+            </h3>
+
+            {% if event.participants.count > 0 %}
+            <div class="participants-list">
+                {% for participant in event.participants.all %}
+                    <div class="participant-badge {% if participant == event.creator %}organizer{% endif %}">
+                        <i class="fas fa-user-circle"></i>
+                        <span>{{ participant.username }}</span>
+                        {% if participant == event.creator %}
+                            <span class="organizer-tag">
+                                <i class="fas fa-crown"></i> Организатор
+                            </span>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="no-participants">
+                <i class="fas fa-user-plus"></i>
+                <p>Пока никто не присоединился. Будьте первым!</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Информация о событии -->
+        <div class="event-info-box">
+            <div class="info-row">
+                <i class="fas fa-calendar-plus"></i>
+                <span>Создано: {{ event.created_at|date:"d.m.Y H:i" }}</span>
+            </div>
+            {% if event.updated_at != event.created_at %}
+            <div class="info-row">
+                <i class="fas fa-edit"></i>
+                <span>Обновлено: {{ event.updated_at|date:"d.m.Y H:i" }}</span>
+            </div>
+            {% endif %}
+            <div class="info-row">
+                <i class="fas fa-eye"></i>
+                <span>
+                    {% if event.is_public %}
+                        <i class="fas fa-globe"></i> Публичное событие
+                    {% else %}
+                        <i class="fas fa-lock"></i> Приватное событие
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно подтверждения удаления -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <h3><i class="fas fa-exclamation-triangle"></i> Подтверждение удаления</h3>
+        <p>Вы уверены, что хотите удалить событие "{{ event.title }}"?</p>
+        <p class="warning-text">Это действие нельзя отменить!</p>
+        <div class="modal-actions">
+            <form id="deleteForm" method="POST" action="{% url 'event_delete' event.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-modal btn-danger">
+                    <i class="fas fa-trash"></i> Удалить
+                </button>
+            </form>
+            <button onclick="closeModal()" class="btn-modal btn-secondary">
+                <i class="fas fa-times"></i> Отмена
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ➕ FAB для админов -->
+{% if user.is_staff %}
+<a href="{% url 'event_create' %}">
+    <button class="fab" aria-label="Создать событие">+</button>
+</a>
+{% endif %}
+
+<script>
+function confirmDelete(eventId) {
+    document.getElementById('deleteModal').style.display = 'flex';
+}
+
+function closeModal() {
+    document.getElementById('deleteModal').style.display = 'none';
+}
+
+// Закрытие модального окна при клике вне его
+window.onclick = function(event) {
+    const modal = document.getElementById('deleteModal');
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Закрытие по ESC
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        document.getElementById('deleteModal').style.display = 'none';
+    }
+});
+</script>
+
+{% endblock %}

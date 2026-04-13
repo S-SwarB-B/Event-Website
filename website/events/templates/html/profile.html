@@ -1,0 +1,89 @@
+{% extends 'html/base.html' %}
+{% load static %}
+
+{% block title %}Профиль | BR_ALPHA{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="profile-wrapper">
+    <div class="profile-container">
+        <!-- Шапка профиля -->
+        <div class="profile-header">
+            <div class="profile-cover"></div>
+            <div class="profile-avatar">
+                {% if user.profile.avatar %}
+                    <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}">
+                {% else %}
+                    <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=b6ff00&color=1e293b&size=200" alt="{{ user.username }}">
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Информация профиля -->
+        <div class="profile-info">
+            <h1>{{ user.username }}</h1>
+            <p class="profile-email">
+                <i class="fas fa-envelope"></i> {{ user.email }}
+            </p>
+            <p class="profile-role">
+                <i class="fas fa-shield-alt"></i>
+                {% if user.is_staff %}Администратор{% else %}Пользователь{% endif %}
+            </p>
+            {% if user.profile.bio %}
+                <p class="profile-bio">{{ user.profile.bio }}</p>
+            {% endif %}
+        </div>
+
+        <!-- Статистика -->
+        <div class="profile-stats">
+            <div class="stat-item">
+                <div class="stat-value">{{ created_events|length }}</div>
+                <div class="stat-label">Создано событий</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">{{ my_events|length }}</div>
+                <div class="stat-label">Участвую</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">{{ user.date_joined|date:"d.m.Y" }}</div>
+                <div class="stat-label">На сайте с</div>
+            </div>
+        </div>
+
+        <!-- Действия -->
+        <div class="profile-actions">
+            <a href="{% url 'profile_edit' %}" class="btn-profile">
+                <i class="fas fa-edit"></i> Редактировать
+            </a>
+            <a href="{% url 'main' %}" class="btn-profile secondary">
+                <i class="fas fa-home"></i> На главную
+            </a>
+        </div>
+
+        <!-- Мои события -->
+        {% if my_events %}
+        <div class="profile-events">
+            <h3><i class="fas fa-calendar-check"></i> Мои события</h3>
+            <div class="events-mini-list">
+                {% for event in my_events|slice:":5" %}
+                    <a href="{% url 'event_detail' event.id %}" class="event-mini-item">
+                        <span class="event-mini-title">{{ event.title }}</span>
+                        <span class="event-mini-date">{{ event.date|date:"d.m.Y" }}</span>
+                    </a>
+                {% endfor %}
+            </div>
+            {% if my_events|length > 5 %}
+                <a href="{% url 'events_list' %}?my=1" class="view-all-link">
+                    Показать все <i class="fas fa-arrow-right"></i>
+                </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
