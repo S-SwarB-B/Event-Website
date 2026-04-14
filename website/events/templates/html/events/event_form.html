@@ -1,11 +1,11 @@
-{% extends 'html/base.html' %}
+{% extends 'html/base/base.html' %}
 {% load static %}
 
 {% block title %}{% if form.instance.pk %}Редактирование{% else %}Создание{% endif %} события | BR_ALPHA{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/event-form.css' %}">
-<link rel="stylesheet" href="{% static 'css/fab.css' %}">
+<link rel="stylesheet" href="{% static 'css/events/event-form.css' %}">
+<link rel="stylesheet" href="{% static 'css/utils/fab.css' %}">
 {% endblock %}
 
 {% block content %}

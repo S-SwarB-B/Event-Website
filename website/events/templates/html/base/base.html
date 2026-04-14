@@ -4,11 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" type="image/png" href="{% static 'picture/bg.png' %}">
+    <link rel="shortcut icon" type="image/png" href="{% static 'picture/bg.png' %}">
+
     <title>{% block title %}BR_ALPHA{% endblock %}</title>
 
     <!-- Базовые стили приложения -->
-    <link rel="stylesheet" href="{% static 'css/variables.css' %}">
-    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/utils/variables.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base/base.css' %}">
     <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
 
     <!-- Font Awesome -->

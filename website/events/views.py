@@ -16,7 +16,7 @@ from events.models import Event, Category
 def welcome(request):
     if request.user.is_authenticated:
         return redirect('main')
-    return render(request, 'html/welcome.html')
+    return render(request, 'html/auth/welcome.html')
 
 
 def login_view(request):
@@ -36,7 +36,7 @@ def login_view(request):
         else:
             messages.error(request, 'Неверная почта или пароль')
 
-    return render(request, 'html/login.html')
+    return render(request, 'html/auth/login.html')
 
 
 def register_view(request):
@@ -73,7 +73,7 @@ def register_view(request):
         messages.success(request, f'Регистрация успешна! Добро пожаловать, {username}!')
         return redirect('main')
 
-    return render(request, 'html/register.html')
+    return render(request, 'html/auth/register.html')
 
 
 @login_required
@@ -95,7 +95,7 @@ def main_view(request):
         'latest_events': latest_events,
         'now': timezone.now(),
     }
-    return render(request, 'html/main.html', context)
+    return render(request, 'html/main/main.html', context)
 
 
 @login_required
@@ -108,7 +108,7 @@ def profile(request):
         'my_events': my_events,
         'created_events': created_events,
     }
-    return render(request, 'html/profile.html', context)
+    return render(request, 'html/profile/profile.html', context)
 
 
 @login_required
@@ -156,7 +156,7 @@ def profile_edit(request):
         'user': user,
         'profile': profile,
     }
-    return render(request, 'html/profile_edit.html', context)
+    return render(request, 'html/profile/profile_edit.html', context)
 
 
 @login_required
@@ -196,7 +196,7 @@ def events_list(request):
         'current_category': category,
         'search': search,
     }
-    return render(request, 'html/events_list.html', context)
+    return render(request, 'html/events/events_list.html', context)
 
 
 @login_required
@@ -217,7 +217,7 @@ def event_detail(request, id):
         'is_creator': is_creator,
         'can_join': can_join,
     }
-    return render(request, 'html/event_detail.html', context)
+    return render(request, 'html/events/event_detail.html', context)
 
 
 @login_required
@@ -241,7 +241,7 @@ def event_create(request):
         form = EventForm()
 
     context = {'form': form}
-    return render(request, 'html/event_form.html', context)
+    return render(request, 'html/events/event_form.html', context)
 
 
 @login_required
@@ -263,7 +263,7 @@ def event_edit(request, id):
         form = EventForm(instance=event)
 
     context = {'form': form, 'event': event}
-    return render(request, 'html/event_form.html', context)
+    return render(request, 'html/events/event_form.html', context)
 
 
 @login_required
@@ -281,7 +281,7 @@ def event_delete(request, id):
         messages.success(request, f'Событие "{title}" удалено!')
         return redirect('events_list')
 
-    return render(request, 'html/event_confirm_delete.html', {'event': event})
+    return render(request, 'html/events/event_confirm_delete.html', {'event': event})
 
 
 @login_required

@@ -1,11 +1,11 @@
-{% extends 'html/base.html' %}
+{% extends 'html/base/base.html' %}
 {% load static %}
 
 {% block title %}{{ event.title }} | BR_ALPHA{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/event-detail.css' %}">
-<link rel="stylesheet" href="{% static 'css/fab.css' %}">
+<link rel="stylesheet" href="{% static 'css/events/event-detail.css' %}">
+<link rel="stylesheet" href="{% static 'css/utils/fab.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -93,7 +93,7 @@
                 <a href="{% url 'event_edit' event.id %}" class="btn-large btn-secondary">
                     <i class="fas fa-edit"></i> Редактировать
                 </a>
-                <button onclick="confirmDelete({{ event.id }})" class="btn-large btn-secondary">
+                <button onclick="confirmDelete({{ event.id }})" class="btn-large btn-danger">
                     <i class="fas fa-trash"></i> Удалить
                 </button>
             {% endif %}
@@ -161,11 +161,14 @@
 <!-- Модальное окно подтверждения удаления -->
 <div id="deleteModal" class="modal">
     <div class="modal-content">
-        <h3><i class="fas fa-exclamation-triangle"></i> Подтверждение удаления</h3>
-        <p>Вы уверены, что хотите удалить событие "{{ event.title }}"?</p>
+        <div class="modal-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3>Удалить событие?</h3>
+        <p>Вы уверены, что хотите удалить <strong>"{{ event.title }}"</strong>?</p>
         <p class="warning-text">Это действие нельзя отменить!</p>
         <div class="modal-actions">
-            <form id="deleteForm" method="POST" action="{% url 'event_delete' event.id %}">
+            <form id="deleteForm" method="POST" action="{% url 'event_delete' event.id %}" style="flex: 1; display: flex;">
                 {% csrf_token %}
                 <button type="submit" class="btn-modal btn-danger">
                     <i class="fas fa-trash"></i> Удалить
@@ -187,17 +190,19 @@
 
 <script>
 function confirmDelete(eventId) {
-    document.getElementById('deleteModal').style.display = 'flex';
+    const modal = document.getElementById('deleteModal');
+    modal.style.display = 'flex';
 }
 
 function closeModal() {
-    document.getElementById('deleteModal').style.display = 'none';
+    const modal = document.getElementById('deleteModal');
+    modal.style.display = 'none';
 }
 
-// Закрытие модального окна при клике вне его
+// Закрытие при клике на фон
 window.onclick = function(event) {
     const modal = document.getElementById('deleteModal');
-    if (event.target == modal) {
+    if (event.target === modal) {
         modal.style.display = 'none';
     }
 }
@@ -205,7 +210,10 @@ window.onclick = function(event) {
 // Закрытие по ESC
 document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
-        document.getElementById('deleteModal').style.display = 'none';
+        const modal = document.getElementById('deleteModal');
+        if (modal.style.display === 'flex') {
+            modal.style.display = 'none';
+        }
     }
 });
 </script>
